@@ -4,6 +4,7 @@ import re
 import logging
 import os.path
 import subprocess
+from subprocess import PIPE
 from datetime import date
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -32,8 +33,12 @@ class Video:
 
 class VideoPlayer:
     def __init__(self):
-        subprocess.Popen(['/usr/bin/mplayer', '-slave', '-idle',
-                          '-fixed-vo', '-identify', '-fs'])
+        #-stop-xscreensaver
+        mp_process = subprocess.Popen(['/usr/bin/mplayer', '-slave', '-idle', '-fixed-vo', '-really-quiet', '-playing-msg', 'a: ${NAME}'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        mp_process.stdin.write('loadfile videos/kubacek.avi 1\n')
+        while True:
+            line = mp_process.stdout.readline().strip()
+            if line: print line
 
     def restart(self):
         pass
