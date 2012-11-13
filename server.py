@@ -29,30 +29,54 @@ class Video:
             message = "Error:\n    " + str(e) + "\n"
             message += "in configuration on line:\n    " + line + "\n"
             logging.getLogger('infoboard.video').error(message)
+            raise e
 
 
 class VideoPlayer:
-    def __init__(self):
-        #-stop-xscreensaver
-        mp_process = subprocess.Popen(['/usr/bin/mplayer', '-slave', '-idle', '-fixed-vo', '-really-quiet', '-playing-msg', 'a: ${NAME}'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        mp_process.stdin.write('loadfile videos/kubacek.avi 1\n')
+    def __init__(self, playlist_producer):
+        self.playlist_producer = playlist_producer
+        command = ['/usr/bin/mplayer',
+                   # reads commands from stdin
+                   '-slave',
+                   # don't quit when there is no file to play
+                   '-idle', 
+                   # fullscreen
+#                   '-fs', 
+                   # no way to control mplayer in other way
+                   '-input', 'nodefault-bindings:conf=/dev/null', 
+                   # reuse same window for playing all videos
+                   '-fixed-vo', 
+                   # don't print progress
+                   '-quiet', 
+                   # prepend messages with their origin module
+                   '-msgmodule', 
+                   # we are interested just in one type of messags
+                   '-msglevel', 'all=0:cplayer=4',
+                  ]
+        self.mp_process = subprocess.Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+
+    def play(self):
         while True:
-            line = mp_process.stdout.readline().strip()
-            if line: print line
-
-    def restart(self):
-        pass
-
+            playlist = self.playlist_producer.get_playlist()
+            for video in playlist:
+                self.mp_process.stdin.write('loadfile '+video+' 1\n')
+            pending_videos = len(playlist) * 2
+            while pending_videos:
+                line = self.mp_process.stdout.readline().strip()
+                if line == "CPLAYER:": pending_videos -= 1
+    
     def stop(self):
         pass
 
-    def set_playlist(self, playlist):
-        pass
-
 class Infoboard:
-    def __init__(self, watcher, player):
+    def __init__(self, watcher, player, playlist_producer, schedule_file):
         self.videos = []
         self._setup_logging()
+        watcher.set_callback(self.process_schedule)
+        self.watcher = watcher
+        self.playlist_producer = playlist_producer
+        self.player = player
+        self.schedule_file = schedule_file
 
     def _setup_logging(self):
         logger = logging.getLogger('infoboard')
@@ -67,27 +91,51 @@ class Infoboard:
         logger.addHandler(ch)
 
     def run(self):
-        pass
+        self.process_schedule(read_text_file(self.schedule_file))
+        self.watcher.start()
+        self.player.play()
 
     def process_schedule(self, schedule):
-        self._parse_schedule(schedule)
+        self.videos = self._parse_schedule(schedule)
+        self.playlist_producer.set_videos(self.videos)
 
     def _parse_schedule(self, text):
+        videos = []
         for line in text.split('\n'):
             line = line.strip()
             if (not line) or line.startswith('#'): continue
-            self.videos.append(Video(line))
+            try:
+                videos.append(Video(line))
+            except ValueError:
+                pass
+        return videos
+
+class PlaylistProducer:
+    def __init__(self, videos=[]):
+        self.videos = []
+
+    def set_videos(self, videos):
+        self.videos = videos
+
+    def get_playlist(self): 
+        return [video.filename for video in self.videos]
 
 class Watcher:
-    def __init__(self, filename, callback):
-            event_handler = FileSystemEventHandler()
+    def __init__(self, filename, callback=lambda x: None):
+        self.callback = callback 
+        event_handler = FileSystemEventHandler()
         def handler(e):
             if e.src_path.endswith('/' + filename):
-                callback(read_text_file(e.src_path))
+                self.callback(read_text_file(e.src_path))
         # this happens also when file is created
         event_handler.on_modified = handler
         self.observer = Observer()
         self.observer.schedule(event_handler, '.')
+
+    def set_callback(self, cb):
+        self.callback = cb
+
+    def start(self):
         self.observer.start()
 
     def stop(self):
@@ -95,9 +143,12 @@ class Watcher:
 
 
 if __name__ == "__main__":
-    ib = Infoboard(None, None)
-    v = VideoPlayer()
-    w = Watcher('schedule.txt', ib.process_schedule)
+    schedule_file = 'schedule.txt'
+    pp = PlaylistProducer()
+    v = VideoPlayer(pp)
+    w = Watcher(schedule_file)
+    ib = Infoboard(w, v, pp, schedule_file)
+    ib.run()
 
     try:
         while True:
