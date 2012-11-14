@@ -2,10 +2,7 @@ import sys
 import time
 import re
 import logging
-from video import Video
-from videoplayer import VideoPlayer
-from playlistproducer import PlaylistProducer
-from watcher import Watcher
+from infoboard import PlaylistProducer, Video, VideoPlayer, Watcher
 from watchdog.utils import read_text_file
 
 
