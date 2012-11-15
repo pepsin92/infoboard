@@ -40,6 +40,3 @@ class VideoPlayer:
             while pending_videos:
                 line = self.mp_process.stdout.readline().strip()
                 if line == "CPLAYER:": pending_videos -= 1
-    
-    def stop(self):
-        pass
