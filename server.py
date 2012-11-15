@@ -50,8 +50,8 @@ class Infoboard:
 
 
 if __name__ == "__main__":
-    schedule_file = 'schedule.txt'
+    schedule_file = '_schedule.txt'
     v = infoboard.videoplayer.VideoPlayer()
-    w = infoboard.watcher.Watcher(schedule_file)
-    ib = Infoboard(w, v, schedule_file)
+    w = infoboard.watcher.Watcher(schedule_file, 'videos')
+    ib = Infoboard(w, v, 'videos/'+schedule_file)
     ib.run()
