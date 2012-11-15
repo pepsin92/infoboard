@@ -2,7 +2,7 @@ import sys
 import time
 import re
 import logging
-from infoboard import Video, VideoPlayer, Watcher
+import infoboard
 from watchdog.utils import read_text_file
 
 
@@ -38,7 +38,7 @@ class Infoboard:
             line = line.strip()
             if (not line) or line.startswith('#'): continue
             try:
-                self.videos.append(Video(line))
+                self.videos.append(infoboard.video.Video(line))
             except ValueError:
                 pass
 
@@ -48,7 +48,7 @@ class Infoboard:
 
 if __name__ == "__main__":
     schedule_file = 'schedule.txt'
-    v = VideoPlayer()
-    w = Watcher(schedule_file)
+    v = infoboard.videoplayer.VideoPlayer()
+    w = infoboard.watcher.Watcher(schedule_file)
     ib = Infoboard(w, v, schedule_file)
     ib.run()
