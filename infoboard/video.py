@@ -5,8 +5,8 @@ from datetime import date
 class Video:
     """Parses line containing description of a video.
 
-    Line must contain filename (string) followed by duration (six numbers):
-    test.avi 2012 1 12 2012 2 7
+    Line must contain filename followed by duration (two dates):
+    test.avi 2012-01-12 2012-02-07
 
     This video would be played from 12th january 2012 to 7th february 2012.
 
