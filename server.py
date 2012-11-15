@@ -55,10 +55,3 @@ if __name__ == "__main__":
     w = Watcher(schedule_file)
     ib = Infoboard(w, v, pp, schedule_file)
     ib.run()
-
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        w.stop()
-#    observer.join()
