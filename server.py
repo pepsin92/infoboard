@@ -3,6 +3,9 @@ import time
 import re
 import logging
 import infoboard
+from infoboard.video import Video
+from infoboard.videoplayer import VideoPlayer
+from infoboard.watcher import Watcher
 from watchdog.utils import read_text_file
 
 
