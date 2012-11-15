@@ -3,9 +3,8 @@ from subprocess import PIPE
 
 class VideoPlayer:
     """Uses mplayer to play playlists provided by playlist producer."""
-    def __init__(self, playlist_producer):
+    def __init__(self):
         """Starts mplayer process with correct arguments."""
-        self.playlist_producer = playlist_producer
         command = ['/usr/bin/mplayer',
                    # reads commands from stdin
                    '-slave',
@@ -26,13 +25,13 @@ class VideoPlayer:
                   ]
         self.mp_process = subprocess.Popen(command, stdin=PIPE, stdout=PIPE)
 
-    def play(self):
+    def play(self, playlist_producer):
         """Plays provided playlists by playlist_producer.
         
         New playlist is obtained immidiately after current one is finished.
         """
         while True:
-            playlist = self.playlist_producer.get_playlist()
+            playlist = playlist_producer.get_playlist()
             for video in playlist:
                 self.mp_process.stdin.write('loadfile '+video+' 1\n')
             # we cannot distinguish between start and finish of video playback

@@ -2,17 +2,16 @@ import sys
 import time
 import re
 import logging
-from infoboard import PlaylistProducer, Video, VideoPlayer, Watcher
+from infoboard import Video, VideoPlayer, Watcher
 from watchdog.utils import read_text_file
 
 
 class Infoboard:
-    def __init__(self, watcher, player, playlist_producer, schedule_file):
+    def __init__(self, watcher, player, schedule_file):
         self.videos = []
         self._setup_logging()
         watcher.set_callback(self.process_schedule)
         self.watcher = watcher
-        self.playlist_producer = playlist_producer
         self.player = player
         self.schedule_file = schedule_file
 
@@ -31,27 +30,25 @@ class Infoboard:
     def run(self):
         self.process_schedule(read_text_file(self.schedule_file))
         self.watcher.start()
-        self.player.play()
+        self.player.play(self)
 
     def process_schedule(self, schedule):
-        self.videos = self._parse_schedule(schedule)
-        self.playlist_producer.set_videos(self.videos)
-
-    def _parse_schedule(self, text):
-        videos = []
-        for line in text.split('\n'):
+        self.videos = []
+        for line in schedule.split('\n'):
             line = line.strip()
             if (not line) or line.startswith('#'): continue
             try:
-                videos.append(Video(line))
+                self.videos.append(Video(line))
             except ValueError:
                 pass
-        return videos
+
+    def get_playlist(self):
+        return [video.filename for video in self.videos]
+
 
 if __name__ == "__main__":
     schedule_file = 'schedule.txt'
-    pp = PlaylistProducer()
-    v = VideoPlayer(pp)
+    v = VideoPlayer()
     w = Watcher(schedule_file)
-    ib = Infoboard(w, v, pp, schedule_file)
+    ib = Infoboard(w, v, schedule_file)
     ib.run()
