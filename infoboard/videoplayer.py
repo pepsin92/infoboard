@@ -24,8 +24,7 @@ class VideoPlayer:
                    # we are interested just in one type of messags
                    '-msglevel', 'all=0:cplayer=4',
                   ]
-        self.mp_process = subprocess.Popen(command, stdin=PIPE, stdout=PIPE,
-                                           stderr=PIPE)
+        self.mp_process = subprocess.Popen(command, stdin=PIPE, stdout=PIPE)
 
     def play(self):
         """Plays provided playlists by playlist_producer.
@@ -36,6 +35,8 @@ class VideoPlayer:
             playlist = self.playlist_producer.get_playlist()
             for video in playlist:
                 self.mp_process.stdin.write('loadfile '+video+' 1\n')
+            # we cannot distinguish between start and finish of video playback
+            # event, so we have to count both
             pending_videos = len(playlist) * 2
             while pending_videos:
                 line = self.mp_process.stdout.readline().strip()
