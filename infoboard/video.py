@@ -16,13 +16,13 @@ class Video:
     """
     def __init__(self, line):
         try:
-            filename, y1, m1, d1, y2, m2, d2 = line.split(' ')
+            filename, first_day, last_day = line.split(' ')
             filename = 'videos/' + filename
             if not os.path.isfile(filename):
                 raise ValueError('Video "{0}" does not exist'.format(filename))
             self.filename = filename
-            self.start_date = date(int(y1), int(m1), int(d1))
-            self.end_date = date(int(y2), int(m2), int(d2))
+            self.start_date = date(*map(int, first_day.split('-')))
+            self.end_date = date(*map(int, last_day.split('-')))
             if (self.end_date - self.start_date).total_seconds() < 0:
                 message = 'Video "{0}" has start date after end date.'.format(
                     filename)
