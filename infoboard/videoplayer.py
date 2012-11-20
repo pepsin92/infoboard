@@ -22,6 +22,14 @@ class VideoPlayer:
                    '-msgmodule', 
                    # we are interested just in one type of messags
                    '-msglevel', 'all=0:cplayer=4',
+                   # we won't use remote control
+                   '-nolirc',
+                   # keep orginal aspec ratio, don't stretch
+                   '-noaspect',
+                   # we don't want to use VDPAU video output
+                   # because drivers may not be present
+                   # (added to solve one error output, no idea what it is)
+                   '-vo', 'xv',
                   ]
         self.mp_process = subprocess.Popen(command, stdin=PIPE, stdout=PIPE)
 
