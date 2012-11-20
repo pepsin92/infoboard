@@ -13,7 +13,7 @@ class Watcher:
         # this happens also when file is created
         event_handler.on_modified = handler
         self.observer = Observer()
-        self.observer.schedule(event_handler, 'videos', folder)
+        self.observer.schedule(event_handler, folder)
 
     def set_callback(self, cb):
         self.callback = cb
