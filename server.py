@@ -3,6 +3,7 @@ import time
 import re
 import logging
 import infoboard
+from datetime import date
 from infoboard.video import Video
 from infoboard.videoplayer import VideoPlayer
 from infoboard.watcher import Watcher
@@ -46,7 +47,9 @@ class Infoboard:
                 pass
 
     def get_playlist(self):
-        return [video.filename for video in self.videos]
+        today = date.today()
+        return [video.filename for video in self.videos
+                if video.start_date <= today and video.end_date >= today]
 
 
 if __name__ == "__main__":
