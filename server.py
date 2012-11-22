@@ -47,6 +47,7 @@ class Infoboard:
                 pass
 
     def get_playlist(self):
+        self.process_schedule(read_text_file(self.schedule_file))
         today = date.today()
         return [video.filename for video in self.videos
                 if video.start_date <= today and video.end_date >= today]
