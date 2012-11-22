@@ -10,8 +10,12 @@ class VideoPlayer:
                    '-slave',
                    # don't quit when there is no file to play
                    '-idle', 
-                   # fullscreen
-                   '-fs', 
+                   # Fullscreen is hard to setup on second screen,
+                   # which is currently our use case.
+                   # We use fixed window size instead
+                   # and maximize it with external program "maximus".
+                   # '-fs', 
+                   '-zoom', '-x', '1920', '-y', '1080',
                    # no way to control mplayer in other way
                    '-input', 'nodefault-bindings:conf=/dev/null', 
                    # reuse same window for playing all videos
