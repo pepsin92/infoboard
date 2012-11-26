@@ -1,8 +1,25 @@
 import os.path
 import logging
 import subprocess
+import multiprocessing 
 from datetime import date
 from subprocess import PIPE
+
+def _runInSequence(first_process, second_process):
+    """
+    Spawns new process which manages to run two processes in sequence.
+    These two are specified by subprocess.Popen args argument.
+    """
+    def runInProcess(first_process, second_process):
+        proc = subprocess.Popen(first_process)
+        proc.wait()
+        subprocess.Popen(second_process)
+        return
+    process = multiprocessing.Process(target=runInProcess,
+                                      args=(first_process, second_process))
+    process.start()
+    # returns immediately after the process starts
+    return process
 
 class Video:
     """Parses line containing description of a video.
@@ -49,19 +66,24 @@ class Video:
     def _from_image(self, filename, duration):
         """Created video from picture with requested duration
         unless it already exists."""
-        if not os.path.isfile('videos/' + filename + '.' + duration +  '.avi'):
-            command = ['/usr/bin/mencoder',
-                       # reads commands from stdin
-                       'mf://pictures/' + filename,
-                       # don't quit when there is no file to play
-                       '-o', 'videos/' + filename + '.' + duration + '.avi',
-                       # fullscreen
-                       '-ovc', 'lavc',
-                       # no way to control mplayer in other way
-                       '-lavcopts', 'vcodec=mjpeg', 
-                       # reuse same window for playing all videos
-                       '-fps', '1/' + duration,
-                       # don't print progress
-                       '-ofps', '30'
-                      ]
-            self.mp_process = subprocess.Popen(command)
+        videoname = filename + '.' + duration + '.avi'
+        if os.path.isfile('/tmp/' + videoname):
+            return
+        if os.path.isfile('videos/' + videoname):
+            return
+        encode = ['/usr/bin/mencoder',
+                  # reads commands from stdin
+                  'mf://pictures/' + filename,
+                  # don't quit when there is no file to play
+                  '-o', '/tmp/' + videoname,
+                  # fullscreen
+                  '-ovc', 'lavc',
+                  # no way to control mplayer in other way
+                  '-lavcopts', 'vcodec=mjpeg', 
+                  # reuse same window for playing all videos
+                  '-fps', '1/' + duration,
+                  # don't print progress
+                  '-ofps', '30'
+                 ]
+        move_product = ['/bin/mv', '/tmp/' + videoname, 'videos/' + videoname]
+        _runInSequence(encode, move_product)
