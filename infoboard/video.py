@@ -87,3 +87,4 @@ class Video:
                  ]
         move_product = ['/bin/mv', '/tmp/' + videoname, 'videos/' + videoname]
         _runInSequence(encode, move_product)
+        raise ValueError('Picture "{0}" is not yet encoded'.format(filename))
