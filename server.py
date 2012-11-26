@@ -4,7 +4,6 @@ import time
 import re
 import logging
 import infoboard
-import itertools
 import os
 from datetime import date
 from infoboard.video import Video
@@ -58,7 +57,9 @@ class Infoboard:
     def get_playlist(self):
         self.process_all_schedules()
         today = date.today()
-        all_videos = itertools.chain.from_iterable(self.videos.values())
+        all_videos = []
+        for key in sorted(self.videos.keys()):
+            all_videos += self.videos[key]
         return [video.filename for video in all_videos
                 if video.start_date <= today and video.end_date >= today]
 
