@@ -57,7 +57,7 @@ class Video:
                 message = 'Video "{0}" has start date after end date.'.format(
                     filename)
                 logging.getLogger('infoboard.video').warning(message)
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             message = "Error:\n    " + str(e) + "\n"
             message += "in configuration on line:\n    " + line + "\n"
             logging.getLogger('infoboard.video').error(message)

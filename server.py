@@ -45,7 +45,7 @@ class Infoboard:
             if (not line) or line.startswith('#'): continue
             try:
                 self.videos[key].append(infoboard.video.Video(line))
-            except ValueError:
+            except:
                 pass
 
     def process_all_schedules(self):
