@@ -1,5 +1,6 @@
 import subprocess
 from subprocess import PIPE
+import time
 
 class VideoPlayer:
     """Uses mplayer to play playlists provided by playlist producer."""
@@ -52,3 +53,4 @@ class VideoPlayer:
             while pending_videos:
                 line = self.mp_process.stdout.readline().strip()
                 if line == "CPLAYER:": pending_videos -= 1
+                self.mp_process.stdin.write('osd_show_text "%s" 20000' % time.strftime('%H:%M'))
