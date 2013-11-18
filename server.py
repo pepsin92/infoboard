@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+from PyQt4.QtCore import QDateTime, QObject, QUrl, pyqtSignal, QFileSystemWatcher
+from PyQt4.QtGui import QApplication
+from PyQt4.QtDeclarative import QDeclarativeView
+
 import glob
 import sys
 import time
@@ -7,65 +12,88 @@ import infoboard
 import os
 from datetime import date
 from infoboard.video import Video
-from infoboard.videoplayer import VideoPlayer
-from infoboard.watcher import Watcher
-from watchdog.utils import read_text_file
 
-
-class Infoboard:
-    def __init__(self, watcher, player, schedule_dir):
-        self.videos = {}
-        self._setup_logging()
-        watcher.set_callback(self.process_schedule)
-        self.watcher = watcher
-        self.player = player
+class Infoboard(object):
+    def __init__(self, schedule_dir):
         self.schedule_dir = schedule_dir
+        self.videos = {}
+        self.playlist = []
 
-    def _setup_logging(self):
-        logger = logging.getLogger('infoboard')
-        fh = logging.FileHandler('error.log')
-        fh.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - '
-                                      '%(levelname)s - %(message)s')
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
-        logger.addHandler(ch)
+        self.app = QApplication(sys.argv)
+
+        self.view = QDeclarativeView()
+        self.view.setSource(QUrl('scene.qml'))
+        self.view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
+
+        self.viewRoot = self.view.rootObject()
+        self.viewRoot.quit.connect(self.app.quit)
+        self.viewRoot.finished.connect(self.show_next)
+
+        self.view.setGeometry(100, 100, 400, 240)
+        self.view.showFullScreen()
+
+        self.watcher = QFileSystemWatcher()
+
+    def schedule_dir_changed(self, filename):
+        self.process_all_schedules()
+        self.playlist = []
 
     def run(self):
+        self.watcher.addPath(self.schedule_dir)
+        self.watcher.directoryChanged.connect(self.schedule_dir_changed)
         self.process_all_schedules()
-        self.watcher.start()
-        self.player.play(self)
+        self.show_next()
+        self.app.exec_()
 
-    def process_schedule(self, key, schedule):
+    def process_schedule(self, key, fobj):
         self.videos[key] = []
-        for line in schedule.split('\n'):
+        for line in fobj:
             line = line.strip()
             if (not line) or line.startswith('#'): continue
             try:
-                self.videos[key].append(infoboard.video.Video(line))
+                self.videos[key].append(Video(line))
             except:
                 pass
 
     def process_all_schedules(self):
         for filename in glob.glob(self.schedule_dir + '/*.txt'):
             filename = os.path.abspath(filename)
-            self.process_schedule(filename, read_text_file(filename))
+            with open(filename, 'rb') as f:
+                self.process_schedule(filename, f)
 
+    def show_next(self):
+        item = self.playlist_next()
+        if not item:
+          return
 
-    def get_playlist(self):
-        self.process_all_schedules()
-        today = date.today()
-        all_videos = []
-        for key in sorted(self.videos.keys()):
-            all_videos += self.videos[key]
-        return [video.filename for video in all_videos
-                if video.start_date <= today and video.end_date >= today]
+        if item.type == 'image':
+            self.viewRoot.showImage(item.filename, item.duration)
+        elif item.type == 'video':
+            self.viewRoot.showVideo(item.filename)
 
+    def playlist_next(self):
+        if len(self.playlist) == 0:
+            self.process_all_schedules()
+            today = date.today()
+            all_videos = []
+            for key in sorted(self.videos.keys()):
+                all_videos += self.videos[key]
+            self.playlist = [video for video in all_videos
+                    if video.start_date <= today and video.end_date >= today]
+        if len(self.playlist) == 0:
+            return None
+        return self.playlist.pop(0)
 
 if __name__ == "__main__":
-    v = infoboard.videoplayer.VideoPlayer()
-    w = infoboard.watcher.Watcher('schedule')
-    ib = Infoboard(w, v, 'schedule')
-    ib.run()
+    logger = logging.getLogger('infoboard')
+    fh = logging.FileHandler('error.log')
+    fh.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - '
+                                  '%(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    logger.addHandler(ch)
+
+    Infoboard('schedule').run()
