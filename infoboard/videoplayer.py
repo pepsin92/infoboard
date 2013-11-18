@@ -53,4 +53,7 @@ class VideoPlayer:
             while pending_videos:
                 line = self.mp_process.stdout.readline().strip()
                 if line == "CPLAYER:": pending_videos -= 1
-                self.mp_process.stdin.write('osd_show_text "%s" 20000' % time.strftime('%H:%M'))
+
+                # every time the process reads a line we show the current time
+                # in top-left corner
+                self.mp_process.stdin.write('osd_show_text "%s" 30000' % time.strftime('%H:%M'))
