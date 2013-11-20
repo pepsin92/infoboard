@@ -21,7 +21,7 @@ class Video:
             filename, first_day, last_day = args[:3]
             if len(args) == 4:
                 self.type = 'image'
-                self.duration = args[3]
+                self.duration = int(args[3])
                 self.filename = 'pictures/' + filename
 
                 if not os.path.isfile(self.filename):
