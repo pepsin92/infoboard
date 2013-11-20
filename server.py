@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from PyQt4.QtCore import QDateTime, QObject, QUrl, pyqtSignal, QFileSystemWatcher
+from PyQt4.QtCore import QDateTime, QObject, QUrl, pyqtSignal, QFileSystemWatcher, QTimer
 from PyQt4.QtGui import QApplication
 from PyQt4.QtDeclarative import QDeclarativeView
 
@@ -67,7 +67,8 @@ class Infoboard(object):
           return
 
         if item.type == 'image':
-            self.viewRoot.showImage(item.filename, item.duration)
+            self.viewRoot.showImage(item.filename)
+            QTimer.singleShot(item.duration * 1000, self.show_next)
         elif item.type == 'video':
             self.viewRoot.showVideo(item.filename)
 

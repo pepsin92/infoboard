@@ -7,16 +7,13 @@ Rectangle {
     signal finished;
 
     function resetAll() {
-      timer.stop()
       image.visible = false
       video.visible = false
     }
 
-    function showImage(url, time_sec) {
+    function showImage(url) {
       resetAll()
 
-      timer.interval = time_sec * 1000
-      timer.start()
       image.source = url
       image.visible = true
     }
@@ -30,13 +27,6 @@ Rectangle {
     }
 
     anchors.fill: parent; color: "black"
-
-    Timer {
-      id: timer
-      interval: 500
-      repeat: false
-      onTriggered: finished()
-    }
 
     Video {
       id: video
