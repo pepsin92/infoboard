@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# make sure the cursor doesn't clutter the screen
+unclutter&
+
+# kill the previously running instance of infoboard
+kill `ps aux | grep server.py | grep -v grep | awk '{print $2}' | head -n 1`
+ 
+# start a new instance
+cd ~/infoboard/;python server.py
