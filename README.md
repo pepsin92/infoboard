@@ -49,3 +49,11 @@ Nainstalovat custom konfiguracne scripty je mozne nasledovne:
 
 3. Vysledkom by mal byt xmonad bez cervenych okrajov ktory uz stihol spustit
    novu instanciu Infoboardu.
+
+#### Nastavenie rozlisenia
+
+Pri deploymentoch infoboardu byva casto problem, ze v case, kedy sa server
+spusta este nemusi pre X server fyzicky existovat zobrazovaci device (od
+slovenskeho 'divaj sa'). V subore `~/.xmonad/autostart` je preto funkcia, ktora
+sa na pozadi kazdych 5 sekund snazi enforcovat rozlisenie 1920x1080 na
+zariadeni VGA1. Pre zmenu rozlisenia teda treba upravit prave tento subor.
