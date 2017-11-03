@@ -68,6 +68,7 @@ class Infoboard(object):
 
         if item.type == 'image':
             self.viewRoot.showImage(item.filename)
+            self.viewRoot.update()
             QTimer.singleShot(item.duration * 1000, self.show_next)
         elif item.type == 'video':
             self.viewRoot.showVideo(item.filename)
