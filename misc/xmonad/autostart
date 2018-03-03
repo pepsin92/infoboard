@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# make sure the cursor doesn't clutter the screen
+unclutter&
+
+# kill the previously running instance of infoboard
+kill `ps aux | grep server.py | grep -v grep | awk '{print $2}' | head -n 1`
+
+# disable power saving and screensavers
+setterm -blank 0
+setterm -powerdown 0
+xset s off
+xset s 0 0
+xset -dpms
+
+# keep the screen on
+function screen_on {
+        while true
+        do
+                xrandr --output VGA1 --mode 1920x1080 --rotate normal
+                sleep 5
+        done
+}
+
+screen_on &
+
+# start a new instance
+cd ~/infoboard/;python server.py
