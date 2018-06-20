@@ -5,10 +5,10 @@ Installation
 ------------
 
 
-### QML
+### Qt5
 
-Nova verzia infoboardu, ktora je zalozena na Qt a QML, potrebuje, aby boli
-Qt a QML dostupne, rovnako ako aj Python bindingy.
+Nova verzia infoboardu, ktora je zalozena na Qt5 a PyQt. Odporucane distro je Debian.
+Je potrebne mat bindingy na QtMultimedia a QtWebEngine.
 
 **Pozor**: na to, aby bolo mozne pouzit Videoplayer, ktory je sucastou QML a
 dolezitou sucastou infoboardu, je potrebne mat nainstalovany Debian/Ubuntu

@@ -1,4 +1,11 @@
-# nazov_suboru prvy_den posledny_den
-GettingToKnowHer.mp4 2012-10-01 2013-01-31
-GoingOutBig.avi 2012-12-01 2012-12-24
-godzilla.jpg 2013-01-01 2013-12-31 60
+# @name <optional_meno_infoboardu>
+# @video <filename> <start_date> <end_date>
+# @image <filename> <start_date> <end_date> <duration>
+# @bus <bus_stop_id> <start_date> <end_date> <duration>
+
+# Examples:
+# @image firewatch.png 2013-01-01 2020-01-01 5
+# @video rick_s.webm 2013-01-01 2020-01-01
+# @bus 358 2013-01-01 2015-01-01 15
+# @bus 21 2013-01-01 2020-01-01 15
+
